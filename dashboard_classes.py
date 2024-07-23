@@ -41,6 +41,12 @@ class GoogleDoc():
 
     bosses_columns = main_columns[4:]
 
+    reroll_map = {
+        nan: "Без реролла",
+        1: "Один реролл",
+        2: "Два реролла"
+    }
+
 
 
 
@@ -52,7 +58,11 @@ class GoogleDoc():
         self.prepare_df_combination_frequency()
         self.prepare_df_coins_for_bosses()
         self.prepare_df_classes_frequency()
-
+        self.prepare_df_abilities_frequency()
+        self.prepare_df_reroll_frequency()
+        self.find_total_coins_for_bosses()
+        self.find_total_players_with_coins_for_bosses()
+        self.prepare_df_coins_frequency()
 
 
     def load_data(self):
@@ -77,15 +87,11 @@ class GoogleDoc():
             categories = st.session_state["classes"]
         )
 
-        dict_map = {
-            nan: "Без реролла",
-            1: "Один реролл",
-            2: "Два реролла"
-        }
-        self.df_origin["Был реролл"] = self.df_origin["Был реролл"].map(dict_map)
+        
+        self.df_origin["Был реролл"] = self.df_origin["Был реролл"].map(self.reroll_map)
         self.df_origin["Был реролл"] = pd.Categorical(
             self.df_origin["Был реролл"],
-            categories = dict_map.values()
+            categories = self.reroll_map.values()
         )
 
 
@@ -136,9 +142,7 @@ class GoogleDoc():
     
     def prepare_df_coins_for_bosses(self):
 
-        columns = self.main_columns[4:]
-
-        self.df_coins_for_bosses = self.df_origin[columns].apply(
+        self.df_coins_for_bosses = self.df_origin[self.bosses_columns].apply(
             [
                 "sum",
                 "count"
@@ -184,6 +188,113 @@ class GoogleDoc():
                 True
             ]
         )
+
+        self.df_classes_frequency["%"] = self.df_classes_frequency["Количество игроков"]\
+        .div(self.nunique_players)\
+        .mul(100)\
+        .round(2)
+
+
+
+
+    def prepare_df_abilities_frequency(self):
+
+        self.df_abilities_frequency = self.df_origin["Умение"]\
+        .value_counts()\
+        .to_frame()\
+        .reset_index()\
+        .rename(
+            columns = {
+                "count": "Количество игроков"
+            }
+        ).sort_values(
+            [
+                "Количество игроков",
+                "Умение"
+            ],
+            ascending = [
+                False,
+                True
+            ]
+        )
+
+        self.df_abilities_frequency["%"] = self.df_abilities_frequency["Количество игроков"]\
+        .div(self.nunique_players)\
+        .mul(100)\
+        .round(2)
+
+
+
+
+    def prepare_df_reroll_frequency(self):
+
+        self.df_reroll_frequency = self.df_origin["Был реролл"]\
+        .value_counts()\
+        .to_frame()\
+        .reset_index()\
+        .rename(
+            columns = {
+                "count": "Количество игроков",
+                "Был реролл": "Количество рероллов"
+            }
+        ).sort_values(
+            [
+                "Количество рероллов"
+            ],
+            key = lambda x: x.map(self.reroll_map)
+        )
+
+        self.df_reroll_frequency["%"] = self.df_reroll_frequency["Количество игроков"]\
+        .div(self.nunique_players)\
+        .mul(100)\
+        .round(2)
+    
+
+
+
+    def find_total_coins_for_bosses(self):
+
+        self.total_coins_for_bosses = self.df_coins_for_bosses["Сумма монет"].sum().astype(int)
+
+
+
+    
+    def find_total_players_with_coins_for_bosses(self):
+
+        self.players_with_reward_for_bosses = self.df_origin[self.bosses_columns]\
+        .sum(axis = 1)\
+        .to_frame()\
+        .rename(
+            columns = {
+                0: "Сумма монет"
+            }
+        ).query(
+            "`Сумма монет` >= 10"
+        ).shape[0]
+        
+
+
+    
+    def prepare_df_coins_frequency(self):
+
+        self.df_coins_frequency = self.df_origin[self.bosses_columns]\
+        .sum(axis = 1)\
+        .value_counts()\
+        .to_frame()\
+        .reset_index()\
+        .rename(
+            columns = {
+                "index": "Сумма монет",
+                "count": "Количество игроков"
+            }
+        ).sort_values(
+            [
+                "Сумма монет"
+            ],
+            ascending = False
+        )     
+
+
     
 
 
@@ -272,14 +383,14 @@ class Dashboard():
             
             st.metric(
                 "Монет за боссов",
-                1
+                self.google_doc.total_coins_for_bosses
             )
 
         with columns[3]:
 
             st.metric(
                 "Игроков с наградой за боссов",
-                5
+                self.google_doc.players_with_reward_for_bosses
             )
 
         with columns[4]:
@@ -404,7 +515,62 @@ class Dashboard():
 
 
 
+    def draw_abilities_frequency_google_doc(self):
 
+        st.header(
+            "Частота умений"
+        )
+
+        df = self.google_doc.df_abilities_frequency
+
+
+        selected_abilities = st.multiselect(
+            "Умение",
+            options = st.session_state["abilities"],
+            key = "Частота умений"
+        )
+
+        if selected_abilities:
+            
+            df = df[
+                df["Умение"].isin(selected_abilities)
+            ]
+
+        st.dataframe(
+            df,
+            hide_index = True,
+            use_container_width = True
+        )
+
+
+    
+
+    def draw_reroll_frequency_google_doc(self):
+
+        st.header(
+            "Частота рероллов"
+        )
+
+        st.dataframe(
+            self.google_doc.df_reroll_frequency,
+            hide_index = True,
+            use_container_width = True
+        )
+
+
+
+
+    def draw_coins_frequency(self):
+
+        st.header(
+            "Частота сумм монет за боссов"
+        )
+
+        st.dataframe(
+            self.google_doc.df_coins_frequency,
+            use_container_width = True,
+            hide_index = True
+        )
 
 
 

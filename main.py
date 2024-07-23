@@ -24,3 +24,12 @@ st.divider()
 columns = st.columns(2)
 with columns[0]:
     dashboard.draw_classes_frequency_google_doc()
+with columns[1]:
+    dashboard.draw_abilities_frequency_google_doc()
+st.divider()
+
+columns = st.columns(2)
+with columns[0]:
+    dashboard.draw_reroll_frequency_google_doc()
+with columns[1]:
+    dashboard.draw_coins_frequency()
