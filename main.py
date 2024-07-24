@@ -37,7 +37,7 @@ with columns[1]:
 
 
 
-
+st.divider()
 st.write(
-    "Мой дс: **@jean_sky_poor**"
+    "Мой дс: **@Jean_Sky_Poor**"
 )
