@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 from numpy import nan
+from time import sleep
 
 
 
@@ -326,7 +327,7 @@ class Dashboard():
 
 
     @st.cache_resource(
-            ttl = 60*60*2,
+            ttl = 60*60,
             show_spinner = "Загружаю данные из Google Docs"
     )
     @staticmethod
@@ -337,14 +338,15 @@ class Dashboard():
 
 
     @st.cache_resource(
-            ttl = 60*60*2,
+            ttl = 60*60,
             show_spinner = "Загружаю данные из ладдера"
     )
     @staticmethod
     def load_ladder(_self):
 
-        return Ladder()
-    
+        return Ladder()  
+
+
 
 
     def clear_cache(self):
@@ -357,7 +359,7 @@ class Dashboard():
 
     def draw_head_google_doc(self):
 
-        columns = st.columns([9,1])
+        columns = st.columns([3.1, 1])
 
         with columns[0]:
             st.title(
@@ -365,9 +367,8 @@ class Dashboard():
             )
 
         with columns[1]:
-            st.button(
-                "ОБНОВИТЬ",
-                on_click = self.clear_cache
+            st.write(
+                "**Время завершения**: 24.09.2024 23:00:00"
             )
 
         st.divider()
