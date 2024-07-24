@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 from numpy import nan
-from time import sleep
+from datetime import datetime
 
 
 
@@ -333,7 +333,9 @@ class Dashboard():
     @staticmethod
     def load_google_doc(_self):
 
-        return GoogleDoc()
+        data_class = GoogleDoc()
+
+        return data_class
     
 
 
@@ -344,15 +346,20 @@ class Dashboard():
     @staticmethod
     def load_ladder(_self):
 
-        return Ladder()  
+        data_class = Ladder()
+
+        st.session_state["last_update"] = datetime.now().strftime("%H:%M:%S")
+
+        return data_class
 
 
 
 
     def clear_cache(self):
 
-        self.load_ladder.clear()
         self.load_google_doc.clear()
+
+        self.load_ladder.clear()
 
 
 
@@ -362,13 +369,19 @@ class Dashboard():
         columns = st.columns([3.1, 1])
 
         with columns[0]:
+            
             st.title(
                 "Файл приватки из Google Docs"
             )
 
         with columns[1]:
+
             st.write(
                 "**Время завершения**: 24.09.2024 23:00:00"
+            )
+
+            st.write(
+                f"**Последнее обновление:** {st.session_state['last_update']}"
             )
 
         st.divider()
