@@ -373,8 +373,8 @@ class Dashboard():
 
         with columns[1]:
 
-            st.write(
-                "**Время завершения**: 24.09.2024 23:00:00"
+            st.header(
+                "**Дата завершения**: 24.09.2024"
             )
 
         st.divider()

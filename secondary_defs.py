@@ -11,5 +11,3 @@ def init_main_states():
     st.session_state["classes"] = pd.read_csv(
         "подклассы.csv"
     )["Подкласс"].to_list()
-
-    st.session_state["last_update"] = None
