@@ -98,7 +98,7 @@ class GoogleDoc():
 
     def find_duplicated_flag(self):
 
-        self.is_login_duplicated = True if self.df_origin["Логин"].duplicated().sum() > 0 else False
+        self.is_login_duplicated = self.df_origin["Логин"].duplicated().any()
 
 
     
@@ -168,30 +168,6 @@ class GoogleDoc():
 
 
     def prepare_df_classes_frequency(self):
-
-        # self.df_classes_frequency = self.df_origin["Подкласс"]\
-        # .value_counts()\
-        # .to_frame()\
-        # .reset_index()\
-        # .rename(
-        #     columns = {
-        #         "count": "Количество игроков"
-        #     }
-        # ).sort_values(
-        #     [
-        #         "Количество игроков",
-        #         "Подкласс"
-        #     ],
-        #     ascending = [
-        #         False,
-        #         True
-        #     ]
-        # )
-
-        # self.df_classes_frequency["%"] = self.df_classes_frequency["Количество игроков"]\
-        # .div(self.nunique_players)\
-        # .mul(100)\
-        # .round(2)
 
         self.df_classes_frequency = self.df_origin.groupby(
             [
@@ -397,36 +373,30 @@ class Dashboard():
         st.divider()
 
 
-        columns = st.columns(5)
-
-        with columns[0]:
-            
-            st.button(
-                "Скачать все таблицы"
-            )
+        columns = st.columns(4)
         
-        with columns[1]:
+        with columns[0]:
 
             st.metric(
                 "Всего уникальных игроков",
                 self.google_doc.nunique_players
             )
         
-        with columns[2]:
+        with columns[1]:
             
             st.metric(
                 "Монет за боссов",
                 self.google_doc.total_coins_for_bosses
             )
 
-        with columns[3]:
+        with columns[2]:
 
             st.metric(
                 "Игроков с наградой за боссов",
                 self.google_doc.players_with_reward_for_bosses
             )
 
-        with columns[4]:
+        with columns[3]:
 
             if self.google_doc.is_login_duplicated:
                 st.warning(
