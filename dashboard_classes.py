@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 from numpy import nan
-from datetime import datetime
 
 
 
@@ -348,8 +347,6 @@ class Dashboard():
 
         data_class = Ladder()
 
-        st.session_state["last_update"] = datetime.now().strftime("%H:%M:%S")
-
         return data_class
 
 
@@ -378,10 +375,6 @@ class Dashboard():
 
             st.write(
                 "**Время завершения**: 24.09.2024 23:00:00"
-            )
-
-            st.write(
-                f"**Последнее обновление:** {st.session_state['last_update']}"
             )
 
         st.divider()
