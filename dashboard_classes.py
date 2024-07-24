@@ -277,7 +277,7 @@ class GoogleDoc():
             key = lambda x: x.map(self.reroll_map)
         )
 
-        self.df_reroll_frequency["%"] = self.df_reroll_frequency["Количество игроков"]\
+        self.df_reroll_frequency["% игроков"] = self.df_reroll_frequency["Количество игроков"]\
         .div(self.nunique_players)\
         .mul(100)\
         .round(2)

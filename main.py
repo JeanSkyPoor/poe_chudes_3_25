@@ -33,3 +33,11 @@ with columns[0]:
     dashboard.draw_reroll_frequency_google_doc()
 with columns[1]:
     dashboard.draw_coins_frequency()
+
+
+
+
+
+st.write(
+    "Мой дс: **@jean_sky_poor**"
+)
