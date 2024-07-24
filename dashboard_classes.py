@@ -169,13 +169,43 @@ class GoogleDoc():
 
     def prepare_df_classes_frequency(self):
 
-        self.df_classes_frequency = self.df_origin["Подкласс"]\
-        .value_counts()\
-        .to_frame()\
-        .reset_index()\
-        .rename(
-            columns = {
-                "count": "Количество игроков"
+        # self.df_classes_frequency = self.df_origin["Подкласс"]\
+        # .value_counts()\
+        # .to_frame()\
+        # .reset_index()\
+        # .rename(
+        #     columns = {
+        #         "count": "Количество игроков"
+        #     }
+        # ).sort_values(
+        #     [
+        #         "Количество игроков",
+        #         "Подкласс"
+        #     ],
+        #     ascending = [
+        #         False,
+        #         True
+        #     ]
+        # )
+
+        # self.df_classes_frequency["%"] = self.df_classes_frequency["Количество игроков"]\
+        # .div(self.nunique_players)\
+        # .mul(100)\
+        # .round(2)
+
+        self.df_classes_frequency = self.df_origin.groupby(
+            [
+                "Подкласс"
+            ],
+            as_index = False
+        ).agg(
+            **{
+                "Количество игроков": (
+                    "Логин", "count"
+                ),
+                "Уникальных умений": (
+                    "Умение", "nunique"
+                )
             }
         ).sort_values(
             [
@@ -187,8 +217,7 @@ class GoogleDoc():
                 True
             ]
         )
-
-        self.df_classes_frequency["%"] = self.df_classes_frequency["Количество игроков"]\
+        self.df_classes_frequency["% игроков"] = self.df_classes_frequency["Количество игроков"]\
         .div(self.nunique_players)\
         .mul(100)\
         .round(2)
@@ -198,13 +227,19 @@ class GoogleDoc():
 
     def prepare_df_abilities_frequency(self):
 
-        self.df_abilities_frequency = self.df_origin["Умение"]\
-        .value_counts()\
-        .to_frame()\
-        .reset_index()\
-        .rename(
-            columns = {
-                "count": "Количество игроков"
+        self.df_abilities_frequency = self.df_origin.groupby(
+            [
+                "Умение"
+            ],
+            as_index = False
+        ).agg(
+            **{
+                "Количество игроков": (
+                    "Логин", "count"
+                ),
+                "Уникальных подклассов": (
+                    "Подкласс", "nunique"
+                )
             }
         ).sort_values(
             [
@@ -216,8 +251,7 @@ class GoogleDoc():
                 True
             ]
         )
-
-        self.df_abilities_frequency["%"] = self.df_abilities_frequency["Количество игроков"]\
+        self.df_abilities_frequency["% игроков"] = self.df_abilities_frequency["Количество игроков"]\
         .div(self.nunique_players)\
         .mul(100)\
         .round(2)
@@ -577,15 +611,6 @@ class Dashboard():
 
 
 
-    
-
-
-
-
-
-
-
-
 
 
 class Ladder():
@@ -593,462 +618,3 @@ class Ladder():
         
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class GoogleDoc():
-
-#     def __init__(self) -> None:
-#         self.read_data()
-#         self.prepare_df_combinations_frequency()
-#         self.prepare_df_classes_frequency()
-#         self.prepare_df_abilities_frequency()
-#         self.prepare_df_rerolls()
-#         self.prepare_df_bosses()
-
-
-
-#     def read_data(self):
-
-#         self.df_origin = pd.read_excel(
-#             st.session_state["google_link"],
-#             usecols = st.session_state["columns"],
-#             sheet_name = "Участники"
-#         ).dropna(
-#             subset = [
-#                 "Логин"
-#             ]
-#         )
-
-#         self.df_origin["Подкласс"] = pd.Categorical(
-#             self.df_origin["Подкласс"],
-#             categories = st.session_state["classes"]
-#         )
-#         self.df_origin["Умение"] = pd.Categorical(
-#             self.df_origin["Умение"],
-#             categories = st.session_state["abilities"]
-#         )
-
-#         dict_to_replace = {
-#             nan: "Без реролла",
-#             1: "Один реролл",
-#             2: "Два реролла"
-#         }
-#         self.df_origin["Был реролл"] = pd.Categorical(
-#             self.df_origin["Был реролл"].map(dict_to_replace),
-#             categories = dict_to_replace.values()
-#         )
-
-
-
-    
-#     def prepare_df_combinations_frequency(self):
-
-#         self.df_combinations = self.df_origin.groupby(
-#             [
-#                 "Подкласс",
-#                 "Умение"
-#             ],
-#             as_index = False,
-#             observed = True
-#         ).size()\
-#         .rename(
-#             columns = {
-#                 "size": "Количество игроков"
-#             }
-#         ).sort_values(
-#             [
-#                 "Количество игроков",
-#                 "Подкласс",
-#                 "Умение"
-#             ],
-#             ascending = [
-#                 False,
-#                 True,
-#                 True
-#             ]
-#         )
-
-
-
-    
-
-#     def prepare_df_classes_frequency(self):
-
-#         self.df_classes_frequency = self.df_origin["Подкласс"]\
-#         .value_counts()\
-#         .reset_index()\
-#         .rename(
-#             columns = {
-#                 "count": "Количество игроков"
-#             }
-#         ).sort_values(
-#             [
-#                 "Количество игроков",
-#                 "Подкласс"
-#             ],
-#             ascending = [
-#                 False,
-#                 True
-#             ]
-#         )
-
-
-
-
-#     def prepare_df_abilities_frequency(self):
-
-#         self.df_abilities_frequency = self.df_origin["Умение"]\
-#         .value_counts()\
-#         .reset_index()\
-#         .rename(
-#             columns = {
-#                 "count": "Количество игроков"
-#             }
-#         ).sort_values(
-#             [
-#                 "Количество игроков",
-#                 "Умение"
-#             ],
-#             ascending = [
-#                 False,
-#                 True
-#             ]
-#         )
-
-
-
-
-#     def prepare_df_rerolls(self):
-
-#         self.df_rerolls = self.df_origin["Был реролл"]\
-#         .value_counts()\
-#         .reset_index()\
-#         .rename(
-#             columns = {
-#                 "Был реролл": "Количество рероллов",
-#                 "count": "Количество игроков"
-#             }
-#         ).sort_values(
-#             [
-#                 "Количество рероллов"
-#             ]
-#         )
-
-
-
-
-#     def prepare_df_bosses(self): 
-
-#         self.df_bosses = self.df_origin[st.session_state["bosses_columns"]]\
-#         .apply(
-#             [
-#                 "sum",
-#                 "count"
-#             ]
-#         ).T\
-#         .reset_index()\
-#         .rename(
-#             columns = {
-#                 "index": "Имя босса",
-#                 "sum": "Сумма монет",
-#                 "count": "Количество убийств"
-#             }
-#         ).sort_values(
-#             [
-#                 "Сумма монет",
-#                 "Имя босса"
-#             ],
-#             ascending = [
-#                 False,
-#                 True
-#             ]
-#         )
-
-
-
-
-
-
-
-
-
-
-# class Dashboard():
-
-#     def draw_google_title():
-
-#         st.title(
-#             "Файл приватки из Google Docs"
-#         )
-#         st.divider()
-
-
-
-
-#     def draw_google_metrics():
-
-#         columns = st.columns(5)
-
-#         with columns[0]:
-#             st.button(
-#                 "Скачать все таблицы"
-#             )
-#         with columns[1]:
-#             st.metric(
-#                 "Всего уникальных игроков",
-#                 st.session_state["unique_players"]
-#             )
-#         with columns[2]: 
-#             st.metric(
-#                 "Заработано монет с боссов",
-#                 2
-#             )
-#         with columns[3]:
-#             st.metric(
-#                 "Игроков с наградами",
-#                 3
-#             )
-#         with columns[4]:
-#             if st.session_state["duplicated_nickname"] > 0:
-#                 st.warning(
-#                     "Есть дубли по логину"
-#                 )
-#             else:
-#                 st.success(
-#                     "Дублей по логину нет"
-#                 )
-#         st.divider()
-
-
-
-
-#     def draw_combination_frequency():
-
-#         st.header(
-#             "Частота комбинаций"
-#         )
-
-#         df = st.session_state["google_doc"].df_combinations
-
-#         columns = st.columns(2)
-#         with columns[0]:
-#             selected_class = st.multiselect(
-#                 "Подкласс",
-#                 options = st.session_state["classes"],
-#                 default = None,
-#                 key = "combination_class"
-#             )
-
-#             if selected_class:
-#                 df = df[
-#                     df["Подкласс"].isin(selected_class)
-#                 ]
-
-#         with columns[1]:
-#             selected_ability = st.multiselect(
-#                 "Умение",
-#                 options = st.session_state["abilities"],
-#                 default = None,
-#                 key = "combination_abilities"
-#             )
-
-#             if selected_ability:
-
-#                 df = df[
-#                     df["Умение"].isin(selected_ability)
-#                 ]
-
-#         st.dataframe(
-#             df,
-#             hide_index = True,
-#             use_container_width = True
-#         )
-
-
-
-    
-#     def draw_bosses_coins():
-
-#         st.header(
-#             "Сумма монет по боссам"
-#         )
-
-#         df = st.session_state["google_doc"].df_bosses
-
-#         selected_bosses = st.multiselect(
-#             "Имя босса",
-#             options = df["Имя босса"].sort_values().to_list(),
-#             default = None
-#         )
-
-#         if selected_bosses:
-#             df = df[
-#                 df["Имя босса"].isin(selected_bosses)
-#             ]
-
-#         st.dataframe(
-#             df,
-#             hide_index = True,
-#             use_container_width = True
-#         )
-
-
-
-    
-#     def draw_classes_frequency():
-
-#         st.header(
-#             "Частота подклассов"
-#         )
-        
-#         df = st.session_state["google_doc"].df_classes_frequency
-
-
-#         selected_classes = st.multiselect(
-#             "Подкласс",
-#             options = st.session_state["classes"],
-#             default = None,
-#             key = "simple_class"
-#         )
-
-#         if selected_classes:
-
-#             df = df[
-#                 df["Подкласс"].isin(selected_classes)
-#             ]
-
-#         st.dataframe(
-#             df,
-#             hide_index = True,
-#             use_container_width = True
-#         )
-
-
-
-
-#     def draw_abilities_frequency():
-        
-#         st.header(
-#             "Частота умений"
-#         )
-
-#         df = st.session_state["google_doc"].df_abilities_frequency
-
-#         selected_abilites = st.multiselect(
-#             "Умение",
-#             options = st.session_state["abilities"],
-#             default = None,
-#             key = "simple_abilities"
-#         )
-
-#         if selected_abilites:
-#             df = df[
-#                 df["Умение"].isin(selected_abilites)
-#             ]
-        
-#         st.dataframe(
-#             df,
-#             hide_index = True,
-#             use_container_width = True
-#         )
-
-
-
-    
-#     def draw_rerolls():
-
-#         st.header(
-#             "Частота рероллов"
-#         )
-
-#         st.dataframe(
-#             st.session_state["google_doc"].df_rerolls,
-#             use_container_width = True,
-#             hide_index = True
-#         )
-
-
-
-    
