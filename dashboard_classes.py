@@ -4,6 +4,8 @@ from numpy import nan
 
 
 
+TTL_TIME = 60 * 30
+
 
 class GoogleDoc():
     link = "https://docs.google.com/spreadsheets/d/1XiP5ss6ijjE5iiBC09C7lUW0ngV3QJt0hGRa_Zwufy8/export#gid=690744568#gid=690744568&format=xlsx"
@@ -322,11 +324,11 @@ class Dashboard():
 
         self.ladder: Ladder = self.load_ladder()
 
-
+    
 
 
     @st.cache_resource(
-            ttl = 60*60,
+            ttl = TTL_TIME,
             show_spinner = "Загружаю данные из Google Docs"
     )
     @staticmethod
@@ -339,7 +341,7 @@ class Dashboard():
 
 
     @st.cache_resource(
-            ttl = 60*60,
+            ttl = TTL_TIME,
             show_spinner = "Загружаю данные из ладдера"
     )
     @staticmethod
@@ -374,7 +376,7 @@ class Dashboard():
         with columns[1]:
 
             st.header(
-                "**Дата завершения**: 24.09.2024"
+                "**Дата завершения** 24.09.2024"
             )
 
         st.divider()
