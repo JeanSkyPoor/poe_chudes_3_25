@@ -7,6 +7,8 @@ st.set_page_config(
     layout = "wide"
 )
 
+st.write("#")
+
 init_main_states()
 
 dashboard = Dashboard()
