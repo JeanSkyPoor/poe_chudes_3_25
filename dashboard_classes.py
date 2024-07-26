@@ -95,7 +95,7 @@ class GoogleDoc():
             categories = self.reroll_map.values()
         )
 
-        self.df_origin["Умение"] = self.df_origin.replace(
+        self.df_origin["Умение"] = self.df_origin["Умение"].replace(
             "Summon Chaos Golem of the Maelstr?m",
             "Summon Chaos Golem of the Maelström"
         )
