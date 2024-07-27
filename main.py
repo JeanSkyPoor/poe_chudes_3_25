@@ -36,6 +36,23 @@ with columns[0]:
 with columns[1]:
     dashboard.draw_coins_frequency()
 
+st.divider()
+
+dashboard.draw_ladder_headers()
+
+columns = st.columns([2, 1])
+with columns[0]:
+    dashboard.draw_classes_info_ladder()
+with columns[1]:
+    dashboard.draw_level_frequency_ladder()
+
+columns = st.columns(2)
+with columns[0]:
+    dashboard.draw_character_per_account_ladder()
+with columns[1]:
+    dashboard.draw_challenges_dist_ladder()
+
+
 
 
 

@@ -1,7 +1,8 @@
 import pandas as pd
 import streamlit as st
 from numpy import nan
-
+from time import sleep
+import requests
 
 
 TTL_TIME = 60 * 30
@@ -586,6 +587,98 @@ class Dashboard():
 
 
 
+    def draw_ladder_headers(self):
+
+        st.title(
+            "Файл ладдера с сайта"
+        )
+
+        columns = st.columns(3)
+
+        with columns[0]:
+            
+            st.metric(
+                "Всего персонажей",
+                self.ladder.total_characters
+            )
+
+        with columns[1]:
+
+            st.metric(
+                "Уникальных игроков",
+                self.ladder.nunique_players
+            )
+
+        with columns[2]:
+
+            st.metric(
+                "Максимальная грубина соло",
+                self.ladder.max_depth_solo
+            )
+        
+        st.divider()
+
+
+
+
+    def draw_classes_info_ladder(self):
+
+        st.header(
+            "Характеристика подклассов"
+        )
+
+        st.dataframe(
+            self.ladder.df_classes_frequency,
+            use_container_width = True,
+            hide_index = True
+        )
+
+
+
+
+    def draw_level_frequency_ladder(self):
+
+        st.header(
+            "Распределение уровней"
+        )
+
+        st.dataframe(
+            self.ladder.df_level_frequency,
+            use_container_width = True,
+            hide_index = True
+        )
+
+
+
+
+    def draw_character_per_account_ladder(self):
+
+        st.header(
+            "Персонажей на аккаунт"
+        )
+        
+        st.dataframe(
+            self.ladder.df_character_per_account,
+            hide_index = True,
+            use_container_width = True
+        )
+
+
+
+
+    def draw_challenges_dist_ladder(self):
+
+        st.header(
+            "Ачивки"
+        )
+
+        st.dataframe(
+            self.ladder.df_challenges_frequency,
+            use_container_width = True,
+            hide_index = True
+        )
+
+
 
 
 
@@ -593,7 +686,224 @@ class Dashboard():
 
 
 class Ladder():
-    pass
+
+    def __init__(self) -> None:
         
+        self.load_data()
+        self.prepare_main_metrics()
+        self.prepare_df_classes_frequency()
+        self.prepare_df_level_frequency()
+        self.prepare_df_challenges_frequency()
+        self.prepare_df_character_per_account()
+    
+
+
+
+    def load_data(self):
+
+        offset = 0
+
+        raw_data = []
+
+        while True:
+            
+            link = f"https://ru.pathofexile.com/api/ladders?offset={offset}&limit=200&id=PoE%20Chudes%20SoK%20by%20Cardiff%20(PL49476)&realm=pc&_=1694455499930"
+
+            request = requests.get(
+                link,
+                headers = {
+                    "User-Agent": "Opera"
+                }
+            ).json()["entries"]
+
+            for record in request:
+
+                character_rank = record.get("rank")
+
+                is_dead = record.get("dead")
+
+                is_public = record.get("public")
+
+                character = record.get("character")
+
+                character_id = character.get("id")
+
+                character_name = character.get("name")
+                
+                character_level = character.get("level")
+
+                character_class = character.get("class")
+                
+                character_depth_solo = None
+                if "depth" in character.keys():
+
+                    character_depth_solo = character.get("depth").get("solo")
+
+                account = record.get("account")
+
+                account_name = account.get("name")
+
+                challenges = account.get("challenges").get("completed")
+
+                raw_data.append(
+                    [
+                        character_rank,
+                        is_dead,
+                        is_public,
+                        account_name,
+                        character_id,
+                        character_name,
+                        character_level,
+                        character_class,
+                        character_depth_solo,
+                        challenges
+                    ]
+                )
+            
+            if len(request) == 200:
+
+                offset += 200
+
+                sleep(1)
+
+                continue
+            else:
+                break
+            
+        
+        self.df_origin = pd.DataFrame(
+            columns = [
+                "rank",
+                "is_dead",
+                "is_public",
+                "account",
+                "character_id",
+                "character_name",
+                "character_level",
+                "character_class",
+                "solo_depth",
+                "challenges"  
+            ],
+            data = raw_data
+        )
+
+
+
+
+    def prepare_main_metrics(self):
+
+        self.total_characters = self.df_origin["character_name"].nunique()
+
+        self.nunique_players = self.df_origin["account"].nunique()
+
+        self.max_depth_solo = self.df_origin["solo_depth"].max().astype(int)
+
+
+
+
+    def prepare_df_classes_frequency(self):
+
+        self.df_classes_frequency = self.df_origin.groupby(
+            [
+                "character_class"
+            ],
+            as_index = False
+        ).agg(
+            **{
+                "Количество персонажей": (
+                    "character_class", "count"
+                ),
+
+                "Минимальный уровень": (
+                    "character_level", "min"
+                ),
+
+                "Средний уровень": (
+                    "character_level", "mean"
+                ),
+
+                "Максимальный уровень": (
+                    "character_level", "max"
+                )
+            }
+        ).sort_values(
+            [
+                "Количество персонажей"
+            ],
+            ascending = False
+        ).rename(
+            columns = {
+                "character_class": "Подкласс"
+            }
+        )
+
+        self.df_classes_frequency["Средний уровень"] = self.df_classes_frequency["Средний уровень"].round(1)
+        
+    
+
+
+    def prepare_df_challenges_frequency(self):
+
+        self.df_challenges_frequency = self.df_origin["challenges"]\
+        .value_counts()\
+        .to_frame()\
+        .reset_index()\
+        .rename(
+            columns = {
+                "challenges": "Количество испытаний",
+                "count": "Количество игроков"
+            }
+        ).sort_values(
+            [
+                "Количество испытаний"
+            ],
+            ascending = False
+        )
+
+
+
+    
+    def prepare_df_level_frequency(self):
+
+        self.df_level_frequency = self.df_origin["character_level"]\
+        .value_counts()\
+        .to_frame()\
+        .reset_index()\
+        .rename(
+            columns = {
+                "character_level": "Уровень персонажа",
+                "count": "Количество персонажей"
+            }
+        ).sort_values(
+            [
+                "Уровень персонажа",
+            ],
+            ascending = False
+        )
+
+
+
+
+    def prepare_df_character_per_account(self):
+
+        self.df_character_per_account = self.df_origin["account"]\
+        .value_counts()\
+        .value_counts()\
+        .to_frame()\
+        .rename(
+            columns = {
+                "count": "Количество игроков"
+            }
+        ).reset_index()\
+        .rename(
+            columns = {
+                "count": "Количество персонажей на аккаунт"
+            }
+        ).sort_values(
+            [
+                "Количество персонажей на аккаунт"
+            ]
+        )
+
 
 
