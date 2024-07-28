@@ -366,7 +366,10 @@ class Dashboard():
 
     def draw_head_google_doc(self):
 
-        columns = st.columns([2.1, 1, 1])
+        columns = st.columns(
+            [2.1, 1, 1],
+            vertical_alignment = "center"
+        )
 
         with columns[0]:
             
@@ -600,7 +603,11 @@ class Dashboard():
             "Файл ладдера с сайта"
         )
 
-        columns = st.columns(4)
+        columns = st.columns(
+            4,
+            gap = "large",
+            vertical_alignment = "center"
+        )
 
         with columns[0]:
             
