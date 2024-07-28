@@ -366,7 +366,7 @@ class Dashboard():
 
     def draw_head_google_doc(self):
 
-        columns = st.columns([3.1, 1])
+        columns = st.columns([2.1, 1, 1])
 
         with columns[0]:
             
@@ -375,6 +375,13 @@ class Dashboard():
             )
 
         with columns[1]:
+            
+            st.link_button(
+                "Файл приватки",
+                "https://docs.google.com/spreadsheets/d/1XiP5ss6ijjE5iiBC09C7lUW0ngV3QJt0hGRa_Zwufy8/edit?gid=690744568#gid=690744568"
+            )
+
+        with columns[2]:
 
             st.header(
                 "**Дата завершения** 24.09.2024"
@@ -593,7 +600,7 @@ class Dashboard():
             "Файл ладдера с сайта"
         )
 
-        columns = st.columns(3)
+        columns = st.columns(4)
 
         with columns[0]:
             
@@ -614,6 +621,13 @@ class Dashboard():
             st.metric(
                 "Максимальная грубина соло",
                 self.ladder.max_depth_solo
+            )
+
+        with columns[3]:
+
+            st.link_button(
+                "Ладдер",
+                "https://ru.pathofexile.com/ladders/league/PoE%20Chudes%20SoK%20by%20Cardiff%20(PL49476)"
             )
         
         st.divider()
