@@ -813,7 +813,7 @@ class Ladder():
 
     def prepare_main_metrics(self):
 
-        self.total_characters = self.df_origin["character_name"].nunique()
+        self.total_characters = self.df_origin.shape[0]
 
         self.nunique_players = self.df_origin["account"].nunique()
 
