@@ -240,6 +240,12 @@ class GoogleDoc():
 
     def prepare_df_reroll_frequency(self):
 
+        ordered_values = {
+            "Без реролла": 0,
+            "Один реролл": 1,
+            "Два реролла": 2
+        }
+
         self.df_reroll_frequency = self.df_origin["Был реролл"]\
         .value_counts()\
         .to_frame()\
@@ -253,7 +259,7 @@ class GoogleDoc():
             [
                 "Количество рероллов"
             ],
-            key = lambda x: x.map(self.reroll_map)
+            key = lambda x: x.map(ordered_values)
         )
 
         self.df_reroll_frequency["% игроков"] = self.df_reroll_frequency["Количество игроков"]\
