@@ -791,7 +791,7 @@ class Ladder():
 
                 offset += 200
 
-                sleep(1)
+                sleep(2)
 
                 continue
             else:
